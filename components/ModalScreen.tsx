@@ -107,8 +107,6 @@ export const ModalScreen: React.FC<Props> = React.memo(
       [commentsFromServer]
     );
 
-    console.log(postsComments.length, commentsFromServer.length);
-
     React.useEffect(() => {
       fetchPost();
       fetchComments();
