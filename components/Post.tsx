@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components/native";
 
 const PostTitle = styled.Text`
@@ -19,9 +20,9 @@ const PostText = styled.Text`
 `;
 
 type Props = {
-  title: String;
-  body: String;
-}
+  title: string;
+  body: string;
+};
 
 export const Post = ({ title, body }: Props) => {
   return (

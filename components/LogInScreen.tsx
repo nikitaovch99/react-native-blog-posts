@@ -1,5 +1,5 @@
 import styled from "styled-components/native";
-import React, { useState, useEffect } from 'react';
+import React from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,6 +7,7 @@ import { Snackbar } from "react-native-paper";
 import { Loading } from "./Loading";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types/RootParams";
+import { User } from "../types/typePost";
 
 const LogInForm = styled.View`
   display: flex;
@@ -37,21 +38,21 @@ const TextInputForm = styled.TextInput.attrs({
 `;
 
 const ButtonForm = styled.TouchableOpacity`
-    margin-top: 60px;
-    display: flex;
-    width: 200px;
-    height: 48px;
-    justify-content: center;
-    align-items: center;
+  margin-top: 60px;
+  display: flex;
+  width: 200px;
+  height: 48px;
+  justify-content: center;
+  align-items: center;
 
-    border-width: 1px;
-    boreder-color: black;
-    border-style: solid;
+  border-width: 1px;
+  boreder-color: black;
+  border-style: solid;
 
-    color: black;
-    background: white;
-    text-align: center;
-    cursor: pointer;
+  color: black;
+  background: white;
+  text-align: center;
+  cursor: pointer;
 `;
 
 const ButtonText = styled.Text`
@@ -78,43 +79,42 @@ type Props = {
   navigation: ProfileScreenNavigationProp;
 };
 
-
 export const LogInScreen = ({ navigation }: Props) => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState(false);
   const [passwordError, setPasswordError] = React.useState(false);
-  const [usersFromServer, setUsersFromServer] = React.useState([]);
+  const [usersFromServer, setUsersFromServer] = React.useState<User[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isVisible, setIsVisible] = React.useState(false);
 
   const fetchUsers = () => {
-  setIsLoading(true);
-  axios
-    .get("https://jsonplaceholder.typicode.com/users")
-    .then(({ data }) => {
-      setUsersFromServer(data);
-    })
-    .catch(() => {
-      setIsVisible(true);
-    })
-    .finally(() => {
-      setIsLoading(false);
-    });
-};
+    setIsLoading(true);
+    axios
+      .get("https://jsonplaceholder.typicode.com/users")
+      .then(({ data }) => {
+        setUsersFromServer(data);
+      })
+      .catch(() => {
+        setIsVisible(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
-  const correctEmail = usersFromServer.find(user => user['email'] === email);
+  const correctEmail = usersFromServer.find((user) => user.email === email);
   const correctPassword = usersFromServer.find(
-    (user) => user['phone'] === password
+    (user) => user.phone === password
   );
 
   const correctUser = usersFromServer.find(
-    (user) => user['email'] === email && user['phone'] === password
+    (user) => user.email === email && user.phone === password
   );
 
   const storeData = async () => {
     try {
-      await AsyncStorage.setItem("@userId", JSON.stringify(correctUser?.['id']));
+      await AsyncStorage.setItem("@userId", JSON.stringify(correctUser?.id));
       navigation.replace("HomeScreen");
       setEmail("");
       setPassword("");
@@ -128,24 +128,24 @@ export const LogInScreen = ({ navigation }: Props) => {
       storeData();
     }
 
-    if(!correctEmail) {
+    if (!correctEmail) {
       setEmailError(true);
     }
 
-    if(!correctPassword) {
+    if (!correctPassword) {
       setPasswordError(true);
     }
-  }
+  };
 
   const OnlyPublicRoute = async () => {
-      try {
-        const value = await AsyncStorage.getItem("@userId") || 0;
-        if(+value > 0) {
-          navigation.replace("HomeScreen");
-        }
-      } catch (e) {
-        throw new Error("Error from storage");
+    try {
+      const value = (await AsyncStorage.getItem("@userId")) || 0;
+      if (+value > 0) {
+        navigation.replace("HomeScreen");
       }
+    } catch (e) {
+      throw new Error("Error from storage");
+    }
   };
 
   const ShowLoginButton = email.length > 3 && password.length > 3;
@@ -155,10 +155,9 @@ export const LogInScreen = ({ navigation }: Props) => {
     OnlyPublicRoute();
   }, []);
 
-
-  return isLoading
-  ? <Loading />
-  : (
+  return isLoading ? (
+    <Loading />
+  ) : (
     <LogInForm>
       <TextInputForm
         onChangeText={(val) => {
@@ -188,7 +187,9 @@ export const LogInScreen = ({ navigation }: Props) => {
       )}
       <Snackbar
         visible={isVisible}
-        onDismiss={() => {}}
+        onDismiss={() => {
+          return;
+        }}
         action={{
           label: "Повторити запит",
           onPress: () => {
@@ -203,4 +204,4 @@ export const LogInScreen = ({ navigation }: Props) => {
       </Snackbar>
     </LogInForm>
   );
-}
+};

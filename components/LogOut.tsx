@@ -1,9 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types/RootParams";
-
 
 const Touchable = styled.TouchableOpacity`
   padding: 10px;
@@ -12,12 +11,11 @@ const Touchable = styled.TouchableOpacity`
   border-width: 1px;
   boreder-color: black;
   border-style: solid;
-
 `;
 
 const ButtonText = styled.Text`
-font-size: 14px;
-font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 type ProfileScreenNavigationProp = StackNavigationProp<

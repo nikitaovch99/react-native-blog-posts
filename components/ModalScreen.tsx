@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import React, { useState, useMemo } from "react";
+import { Modal, Text, View } from "react-native";
 import axios from "axios";
 import { Snackbar } from "react-native-paper";
 import { FlatList } from "react-native-gesture-handler";
 import styled from "styled-components/native";
 import { Comment } from "./Comment";
 import { Loading } from "./Loading";
+import { PostCommentFromServer, PostComment } from "../types/typePost";
 
 const ModalView = styled.TouchableOpacity`
   flex: 1;
@@ -59,104 +60,111 @@ interface Post {
   body: string;
 }
 
-export const ModalScreen = ({
-  modalVisible,
-  handleVisibleModal,
-  postId,
-}: Props) => {
-  const [commentsFromServer, setCommentsFromServer] = useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
-  const [postFromServer, setPostFromServer] = React.useState<Post | null>(null);
+export const ModalScreen: React.FC<Props> = React.memo(
+  ({ modalVisible, handleVisibleModal, postId }: Props) => {
+    const [commentsFromServer, setCommentsFromServer] = useState<
+      PostCommentFromServer[]
+    >([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isVisible, setIsVisible] = React.useState(false);
+    const [postFromServer, setPostFromServer] = React.useState<Post | null>(
+      null
+    );
 
-  const fetchPost = () => {
-    setIsLoading(true);
-    axios
-      .get("https://jsonplaceholder.typicode.com/posts/" + postId)
-      .then(({ data }) => {
-        setPostFromServer(data);
-      })
-      .catch((error) => {
-        console.log('Error', error);
+    const fetchPost = () => {
+      setIsLoading(true);
+      axios
+        .get("https://jsonplaceholder.typicode.com/posts/" + postId)
+        .then(({ data }) => {
+          setPostFromServer(data);
+        })
+        .catch((error) => {
+          console.log("Error", error);
           setIsVisible(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    };
 
-  const fetchComments = () => {
-    setIsLoading(true);
-    axios
-      .get("https://jsonplaceholder.typicode.com/comments")
-      .then(({ data }) => {
-        setCommentsFromServer(data);
-      })
-      .catch(() => { 
-        setIsVisible(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+    const fetchComments = () => {
+      setIsLoading(true);
+      axios
+        .get("https://jsonplaceholder.typicode.com/comments")
+        .then(({ data }) => {
+          setCommentsFromServer(data);
+        })
+        .catch(() => {
+          setIsVisible(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    };
 
-  const postsComments = commentsFromServer.filter(
-    (comment) => comment["postId"] === +postId
-  );
+    const postsComments: PostComment[] = useMemo(
+      () => commentsFromServer.filter((comment) => comment.postId === +postId),
+      [commentsFromServer]
+    );
 
-  React.useEffect(() => {
-    fetchPost();
-    fetchComments();
-  }, []);
+    console.log(postsComments.length, commentsFromServer.length);
 
-  return (
-    <Modal
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        handleVisibleModal(false);
-      }}
-    >
-      <ModalView onPress={() => handleVisibleModal(false)} activeOpacity={1}>
-        <ViewModal activeOpacity={1}>
-          {isLoading ? (
-            <Loading></Loading>
-          ) : (
-            <>
-              <PostTitle>{postFromServer?.title}</PostTitle>
-              <PostText>{postFromServer?.body}</PostText>
-              <Title>Comments:</Title>
-              <CommentsView>
-                <FlatList
-                  data={postsComments}
-                  renderItem={({ item }) => (
-                    <Comment name={item["name"]} body={item["body"]} />
-                  )}
-                />
-              </CommentsView>
-              <Snackbar
-                visible={isVisible}
-                onDismiss={() => {}}
-                action={{
-                  label: "Повторити запит",
-                  onPress: () => {
-                    fetchPost();
-                    fetchComments();
-                  },
-                }}
-                style={{
-                  backgroundColor: "gray",
-                  transform: [{ translateX: 15 }],
-                }}
-              >
-                <View>
-                  <Text>Сталася помилка</Text>
-                </View>
-              </Snackbar>
-            </>
-          )}
-        </ViewModal>
-      </ModalView>
-    </Modal>
-  );
-};
+    React.useEffect(() => {
+      fetchPost();
+      fetchComments();
+    }, []);
+
+    return (
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          handleVisibleModal(false);
+        }}
+      >
+        <ModalView onPress={() => handleVisibleModal(false)} activeOpacity={1}>
+          <ViewModal activeOpacity={1}>
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <>
+                <PostTitle>{postFromServer?.title}</PostTitle>
+                <PostText>{postFromServer?.body}</PostText>
+                <Title>Comments:</Title>
+                <CommentsView>
+                  <FlatList
+                    data={postsComments}
+                    renderItem={({ item }) => (
+                      <Comment name={item.name} body={item.body} />
+                    )}
+                  />
+                </CommentsView>
+                <Snackbar
+                  visible={isVisible}
+                  onDismiss={() => {
+                    return;
+                  }}
+                  action={{
+                    label: "Повторити запит",
+                    onPress: () => {
+                      fetchPost();
+                      fetchComments();
+                    },
+                  }}
+                  style={{
+                    backgroundColor: "gray",
+                    transform: [{ translateX: 15 }],
+                  }}
+                >
+                  <View>
+                    <Text>Сталася помилка</Text>
+                  </View>
+                </Snackbar>
+              </>
+            )}
+          </ViewModal>
+        </ModalView>
+      </Modal>
+    );
+  }
+);

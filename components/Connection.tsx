@@ -1,11 +1,12 @@
-import { View } from 'react-native';
-import styled from 'styled-components/native';
+import { View } from "react-native";
+import React from "react";
+import styled from "styled-components/native";
 
 const ConnectionText = styled.Text`
-font-size: 14px;
-font-weight: 600;
-position: absolute;
-left: 150px;
+  font-size: 14px;
+  font-weight: 600;
+  position: absolute;
+  left: 150px;
 `;
 
 export const Connection = () => {
@@ -14,4 +15,4 @@ export const Connection = () => {
       <ConnectionText>No connection</ConnectionText>
     </View>
   );
-}
+};

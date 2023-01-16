@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components/native";
 
 const CommentName = styled.Text`
@@ -21,13 +22,11 @@ const CommentText = styled.Text`
 type Props = {
   name: string;
   body: string;
-}
-
-export const Comment = ({ name, body }: Props) => {
-  return (
-    <CommentView>
-      <CommentName>{name}</CommentName>
-      <CommentText>{body}</CommentText>
-    </CommentView>
-  );
 };
+
+export const Comment = ({ name, body }: Props) => (
+  <CommentView>
+    <CommentName>{name}</CommentName>
+    <CommentText>{body}</CommentText>
+  </CommentView>
+);
